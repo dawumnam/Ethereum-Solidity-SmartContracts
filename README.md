@@ -156,22 +156,22 @@
 
 ### Accounts
 
-_Smart contract_ accounts are controlled by code and instructs how smart contract behaves
+**Smart contract** accounts are controlled by code and instructs how smart contract behaves
 It has following properties
 
 - Balance: this is amount of ether this account has
 - Storage: This stores whatever data that is related to the app we're building. Could be numbers, strings, and etc..
 - Code: It is a raw machine code for this contract. The code that developer write in the account is converted and stored in the form of raw machine code
 
-_External accounts_ are user accounts that any entity or human being owns. It is decoupled from any network. This account can be used in any kind of different networks
+**External accounts** are user accounts that any entity or human being owns. It is decoupled from any network. This account can be used in any kind of different networks
 
-_Contract accounts_ are specific to individual network. If you deploy the contract account to a single network, it lives in that network. If you were to deploy that account to other network, you need to take the code and create totally new account and redeploy it in other network.
+**Contract accounts** are specific to individual network. If you deploy the contract account to a single network, it lives in that network. If you were to deploy that account to other network, you need to take the code and create totally new account and redeploy it in other network.
 
 ### Code
 
-_The contract source_ (the code you wrote in contract account) can be deployed multiple times in a single network or can be deployed across networks. This relationship is similar to what we have in programming world. Like a class and instance.
+**The contract source** (the code you wrote in contract account) can be deployed multiple times in a single network or can be deployed across networks. This relationship is similar to what we have in programming world. Like a class and instance.
 
-_Solidity_ is
+**Solidity** is
 
 - Written in .sol files
 - Strongly typed
