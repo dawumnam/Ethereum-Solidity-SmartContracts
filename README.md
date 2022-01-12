@@ -20,6 +20,7 @@
   - [SmartContracts](#smartcontracts)
     - [Accounts](#accounts)
     - [Code](#code)
+    - [BIG GOTCHA!! Don't assume testing environment is real](#big-gotcha-dont-assume-testing-environment-is-real)
 
 # Ethereum-Solidity-SmartContracts
 
@@ -181,3 +182,66 @@ It has following properties
 The solidity we write gets compiled and spits two different things.
 A byte code that is ready to be deployed in a network.
 And Application binary interface (ABI) that serves as interface between client and deployed contract account
+
+Solidity function types
+
+- Public or private: Anyone (with ethereum account) or only this contract can call this function
+- View and constant : these are the same thing, this function returns data and does not modify contract's data
+- Pure: function does not modify or read the contract's data
+- Payable: calling this function means caller might send ether along
+
+**If function modifies the data in our contract, the function cannot return any value**
+
+Simple Demo
+
+```solidity
+//To inform which version of compiler we're using
+pragma solidity ^0.4.17;
+
+contract Inbox {
+    string private message;
+
+    function Inbox(string initialMessage) public {
+        message = initialMessage;
+
+    }
+
+    function setMessage(string newMessage) public {
+        message = newMessage;
+    }
+
+    function getMessage() public view returns (string) {
+        return message;
+    }
+}
+```
+
+**Contract creation**
+A deploying contract to network is similar to what normal transaction for sending money is like
+The difference is that
+
+- **to** field in the transaction is left blank
+- **data** field is the bytecode of the contract. Since the data field of transaction is visible to everyone with an account, thus the code is also visible to others
+- value field is used to set initial money that the contract gets
+- Just as normal transaction, v,r and s key is used to verify account address using private key.
+
+**Two ways of using function**
+If you notice in our function, there are two ways to use the function.
+
+- setMessage to alter message variable
+- getMessage to fetch current message data
+
+Reading or fetching data involves looking back to previous data on a blockchain. Setting or altering data involves in creating another transaction. This means
+
+- Reading data does not need to be mined
+- Setting data requires mining
+
+Calling function (reading data) does not modify data, can return a data, runs instantly, and is free
+
+Sending a transaction to a function can modify a contract's data, it takes time to execute (15~30 seconds), returns transaction hash, it costs money, there is no return value.
+
+### BIG GOTCHA!! Don't assume testing environment is real
+
+Notice if you invoke set message and send a transaction. It is instant. It is only because we're in the testing suite. However, if the contract is deployed in real network like ether main or some other networks. Because of set block time, it will take at least 15 seconds.
+
+When creating a smart contract accounts, it is essential not to assume that sending a transaction is an instantenous task.
