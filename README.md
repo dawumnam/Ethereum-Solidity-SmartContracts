@@ -19,8 +19,14 @@
     - [Why difficulty target number is adjusted?](#why-difficulty-target-number-is-adjusted)
   - [SmartContracts](#smartcontracts)
     - [Accounts](#accounts)
-    - [Code](#code)
+    - [Hands on on solidity](#hands-on-on-solidity)
     - [BIG GOTCHA!! Don't assume testing environment is real](#big-gotcha-dont-assume-testing-environment-is-real)
+    - [Gas??](#gas)
+    - [12 word mnemonic](#12-word-mnemonic)
+    - [Compiling first smart contract](#compiling-first-smart-contract)
+    - [Testing](#testing)
+    - [Connecting to Rinkeby Network](#connecting-to-rinkeby-network)
+    - [Hands on with Remix Injected Web3](#hands-on-with-remix-injected-web3)
 
 # Ethereum-Solidity-SmartContracts
 
@@ -168,7 +174,7 @@ It has following properties
 
 **Contract accounts** are specific to individual network. If you deploy the contract account to a single network, it lives in that network. If you were to deploy that account to other network, you need to take the code and create totally new account and redeploy it in other network.
 
-### Code
+### Hands on on solidity
 
 **The contract source** (the code you wrote in contract account) can be deployed multiple times in a single network or can be deployed across networks. This relationship is similar to what we have in programming world. Like a class and instance.
 
@@ -245,3 +251,153 @@ Sending a transaction to a function can modify a contract's data, it takes time 
 Notice if you invoke set message and send a transaction. It is instant. It is only because we're in the testing suite. However, if the contract is deployed in real network like ether main or some other networks. Because of set block time, it will take at least 15 seconds.
 
 When creating a smart contract accounts, it is essential not to assume that sending a transaction is an instantenous task.
+
+### Gas??
+
+A **Gas** is a unit which you must pay in order to send a transaction. The price of gas sending transaction for specific function is determined by **smart contract** However, when you send a transaction, you can set gas limit so that the cost won't exceed the gas limit you set.
+
+You can also specify unit you're willing to pay per gas. For example, if you set gas price of 100 wei, and seding a transaction costs 10 gas, the total cost is \*_100 wei/gas _ 10 gas \* = 1000 wei
+
+### 12 word mnemonic
+
+The 12 word mnemonic generated as we set up metamask solves a problem by having to memorize address, public and private key. If you have multiple ethereum accounts, it will be extremely painful to memorize these combinations. So instead, 12 word mnemonic using BIP42 algorithm, generates series of address, private and public key.
+https://iancoleman.io/bip39/#english
+
+### Compiling first smart contract
+
+The code we wrote above with remix can go directly into inbox/contracts/inbox.sol
+Then inside the compile file,
+
+```javascript
+// compile code will go here
+const path = require("path");
+const fs = require("fs");
+const solc = require("solc");
+
+const inboxPath = path.resolve(__dirname, "contracts", "Inbox.sol");
+const source = fs.readFileSync(inboxPath, "utf8");
+module.exports = solc.compile(source, 1).contracts[":Inbox"];
+```
+
+Notice we used path to make sure compiling is cross compatiable
+We then read file content and assign it to source variable. finally export the compiled version of contract. In our case, specifically the inbox contract. This process is supposed to handle multiple smart contracts.
+
+When smart contract written in solidity is compiled,
+
+- It Produces Byte code and ABI
+- Byte code is deployed in our local test network by Ganache
+- We're going to communicate with contract using web3 utilizing ABI
+
+### Testing
+
+In our test/Inbox.test.js
+Our test flow is as follows
+
+1. Mocha starts
+2. deploy a new contract (before each)
+3. Manipulate the contract (it)
+4. Make an assertion about the contract (it)
+
+When we are connected to local test network using web3 through ganache, the external account that will be used to deploy smart contract is automatically generated so that we dont have to worry about private keys and etc. These accounts are so called Unlocked Accounts
+
+Actual implementation of deploying a contract
+
+```javascript
+// contract test code will go here
+const assert = require("assert");
+const ganache = require("ganache-cli");
+const Web3 = require("web3");
+const web3 = new Web3(ganache.provider());
+const { interface, bytecode } = require("../compile");
+let accounts, inbox;
+beforeEach(async () => {
+  // Get a list of all accounts
+  accounts = await web3.eth.getAccounts();
+  // Use one of those accounts to deploy the contract
+  inbox = await new web3.eth.Contract(JSON.parse(interface))
+    .deploy({
+      data: bytecode,
+      arguments: ["Hello Mo"],
+    })
+    .send({ from: accounts[0], gas: "1000000" }); // gasLimit for this transaction
+});
+
+describe("Inbox", () => {
+  it("deploys a contract", () => {
+    asssert.ok(inbox.options.address);
+  });
+});
+```
+
+If you console log inbox, there is providers property. It has 3 different providers but the IpcProvider is used when you use same machine to test your network
+
+Below is testing initial constructor and setMessage method
+
+```javascript
+
+describe("Inbox", () => {
+  it("deploys a contract", () => {
+    assert.ok(inbox.options.address);
+  });
+  it("has a default message", async () => {
+    const message = await inbox.methods.getMessage().call();
+    assert.equal(message, INITIAL_STRING);
+  });
+
+  it("updates a message", async () => {
+    await inbox.methods
+      .setMessage(`${INITIAL_STRING}s`)
+      .send({ from: accounts[0] });
+    const message = await inbox.methods.getMessage().call();
+    assert.equal(message, `${INITIAL_STRING}s`);
+  });
+
+```
+
+### Connecting to Rinkeby Network
+
+Difference between deploying a contract to local test network and Rinkeby Network is that we now have to worry about all theses security stuff and make sure that the account actually has some ether in it.
+
+We need to connect to a node that exists inside rinkeby network. We can solve this by running a local ethereum node and use it to connect to network
+
+However due to its complexity, we'll use infura api which works like a portal to connect to rinkeby network. Infura already has a node inside rinkeby network. So using provider from infura api, we can connect to infura node in rinkeby network
+
+Earlier we used ganache to easily connect to the network. However, in order to connect to a real network, we need to set up the provider manually. We need to use it to unlock an account and set where it will connect to. @truffle/hdwallet-provider module will do the job.
+
+```javascript
+// deploy code will go here
+const HDWalletProvider = require("@truffle/hdwallet-provider");
+const Web3 = require("web3");
+const { interface, bytecode } = require("./compile");
+
+const provider = new HDWalletProvider(
+  `sauce afford between wool awake please gown retreat idle tongue hard bright`,
+  "https://rinkeby.infura.io/v3/4361b168992b4cd692c5a70114367e64"
+);
+
+const web3 = new Web3(provider);
+
+const deploy = async () => {
+  const accounts = await web3.eth.getAccounts();
+  const inbox = await new web3.eth.Contract(JSON.parse(interface))
+    .deploy({
+      data: bytecode,
+      arguments: ["DOOJI!!"],
+    })
+    .send({ from: accounts[0], gas: "1000000" }); // gasLimit for this transaction
+  console.log(inbox.options.address);
+};
+deploy();
+```
+
+Now connecting and deploying a contract to rinkeby is very similar to what we did in the test setting. The only difference is that we are now using our actually account from metamask that holds test ether by injecting tne mnemonic, and setting the endpoint to what we got from infura.
+
+### Hands on with Remix Injected Web3
+
+Now proceed to remix and choose deploy & run from left side menu
+Set environment to Injected Web3
+This immediately attempts connect to your account through metamask
+Allowing this will set account in remix to your account.
+If you now add the contract address to At address in remix
+You can interact with it by paying actual ether that your test account has
+Notice how sending transaction actually takes quite some time!
