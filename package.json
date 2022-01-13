@@ -1,0 +1,26 @@
+{
+  "name": "ethereum-solidity-smartcontracts",
+  "version": "1.0.0",
+  "description": "- [Ethereum-Solidity-SmartContracts](#ethereum-solidity-smartcontracts)   - [What is ethereum network?](#what-is-ethereum-network)   - [Address & Keys](#address--keys)   - [Transaction](#transaction)     - [Properties of transaction object](#properties-of-transaction-object)   - [Transaction flow of demo](#transaction-flow-of-demo)   - [Why wait?](#why-wait)   - [In detail](#in-detail)   - [BlockChain 101](#blockchain-101)     - [Hash, Block and Blockchain](#hash-block-and-blockchain)     - [How blocks are intact](#how-blocks-are-intact)     - [Distributed BlockChain](#distributed-blockchain)     - [How to make this blockChain userful? Token!](#how-to-make-this-blockchain-userful-token)     - [Problem with current Block!](#problem-with-current-block)     - [Coinbase transaction](#coinbase-transaction)     - [Applying general ideas to Ethereum](#applying-general-ideas-to-ethereum)     - [Hash range](#hash-range)     - [Block Time](#block-time)     - [Why difficulty target number is adjusted?](#why-difficulty-target-number-is-adjusted)   - [SmartContracts](#smartcontracts)     - [Accounts](#accounts)     - [Hands on on solidity](#hands-on-on-solidity)     - [BIG GOTCHA!! Don't assume testing environment is real](#big-gotcha-dont-assume-testing-environment-is-real)     - [Gas??](#gas)     - [12 word mnemonic](#12-word-mnemonic)     - [Compiling first smart contract](#compiling-first-smart-contract)     - [Testing](#testing)     - [Connecting to Rinkeby Network](#connecting-to-rinkeby-network)     - [Hands on with Remix Injected Web3](#hands-on-with-remix-injected-web3)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dawumnam/Ethereum-Solidity-SmartContracts.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dawumnam/Ethereum-Solidity-SmartContracts/issues"
+  },
+  "homepage": "https://github.com/dawumnam/Ethereum-Solidity-SmartContracts#readme",
+  "dependencies": {
+    "@truffle/hdwallet-provider": "^2.0.0",
+    "ganache-cli": "^6.12.2",
+    "mocha": "^9.1.3",
+    "solc": "^0.8.11",
+    "web3": "^1.6.1"
+  }
+}
